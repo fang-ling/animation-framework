@@ -82,11 +82,11 @@ import JavaScriptCoreKit
 /// - ``layoutSublayers()``
 /// - ``needsLayout``
 open class CoreAnimationLayer {
-  private class var _nodeKind: _JavaScriptCoreNode.Kind {
-    return .division
+  internal class var _viewElementClass: JavaScriptCoreViewElement.Type {
+    return JavaScriptCoreViewElement.self
   }
 
-  private var _node: _JavaScriptCoreNode
+  private var _viewElement: JavaScriptCoreViewElement
 
   /// The layer's delegate object.
   ///
@@ -225,7 +225,7 @@ open class CoreAnimationLayer {
   ///
   /// This is the designated initializer for layer objects.
   public required init() {
-    self._node = _JavaScriptCoreNode(kind: Self._nodeKind)
+    self._viewElement = Swift::type(of: self)._viewElementClass.init()
 
     self.isHidden = false
     self.masksToBounds = false
@@ -264,17 +264,7 @@ open class CoreAnimationLayer {
       self.sublayers = []
     }
 
-    if layer.superlayer !== self {
-      layer.removeFromSuperlayer()
-    }
-
-    self.sublayers?.append(layer)
-
-    // [self.contents addSubnode:layer.contents];
-
-    layer.superlayer = self
-
-    self.needsLayout = true
+    self.insertSublayer(layer, at: self.sublayers!.count)
   }
 
   /// Detaches the layer from its parent layer.
@@ -288,7 +278,7 @@ open class CoreAnimationLayer {
 
     self.superlayer?.sublayers?.removeAll(where: { $0 === self })
 
-    // [self.contents removeFromSupernode];
+    self._viewElement.removeFromSuperviewElement()
 
     self.superlayer?.needsLayout = true
     self.superlayer?.needsDisplay = true
@@ -301,17 +291,13 @@ open class CoreAnimationLayer {
   ///   - layer: The sublayer to be inserted into the current layer.
   ///   - index: The index at which to insert aLayer. This value must be a valid 0-based index into the ``sublayers`` array.
   public func insertSublayer(_ layer: CoreAnimationLayer, at index: CInteger) {
-    if self.sublayers == nil {
-      self.sublayers = []
-    }
-
     if layer.superlayer !== self {
       layer.removeFromSuperlayer()
     }
 
     self.sublayers?.insert(layer, at: index)
 
-    // [self.contents insertSubnode:layer.contents atIndex:index];
+    self._viewElement.insertSubviewElement(layer._viewElement, at: index)
 
     layer.superlayer = self
 
