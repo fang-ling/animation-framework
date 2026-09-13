@@ -256,6 +256,7 @@ open class CoreAnimationLayer {
     self._viewElement.style.height = self.frame.size.height
     self._viewElement.style.visibility = self.isHidden ? "hidden" : "visible"
     self._viewElement.style.borderRadius = self.cornerRadius
+    self._viewElement.style.overflow = self.masksToBounds ? "hidden" : self._viewElement.style.overflow
 
     // FIXME: No way to the `draw(in:)` branch.
     self.delegate?.display(self)
